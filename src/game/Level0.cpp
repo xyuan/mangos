@@ -108,7 +108,7 @@ bool ChatHandler::HandleServerInfoCommand(char* /*args*/)
         full = _FULLVERSION(REVISION_NR);
         fullR2 = _R2FULLVERSION(REVISION_DATE,REVISION_TIME,REVISION_R2,REVISION_ID);
     }
-    SendSysMessage(full);
+    /*SendSysMessage(full);
     SendSysMessage(fullR2);
 
     if (sScriptMgr.IsScriptLibraryLoaded())
@@ -123,7 +123,7 @@ bool ChatHandler::HandleServerInfoCommand(char* /*args*/)
         SendSysMessage(LANG_USING_SCRIPT_LIB_NONE);
 
     PSendSysMessage(LANG_USING_WORLD_DB,sWorld.GetDBVersion());
-    PSendSysMessage(LANG_USING_EVENT_AI,sWorld.GetCreatureEventAIVersion());
+    PSendSysMessage(LANG_USING_EVENT_AI,sWorld.GetCreatureEventAIVersion());*/
     PSendSysMessage(LANG_CONNECTED_USERS, activeClientsNum, maxActiveClientsNum, queuedClientsNum, maxQueuedClientsNum);
     PSendSysMessage(LANG_UPTIME, str.c_str());
 

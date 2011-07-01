@@ -1055,7 +1055,7 @@ void WorldObject::GetZoneAndAreaId(uint32& zoneid, uint32& areaid) const
 
 InstanceData* WorldObject::GetInstanceData() const
 {
-    return GetMap()->GetInstanceData();
+    return GetMap() ? GetMap()->GetInstanceData() : NULL;
 }
 
                                                             //slow

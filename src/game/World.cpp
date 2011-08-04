@@ -613,7 +613,7 @@ void World::LoadConfigSettings(bool reload)
 
     setConfigMinMax(CONFIG_UINT32_RAF_MAXGRANTLEVEL, "RAF.MaxGrantLevel", 60, 1, 80);
     setConfigMinMax(CONFIG_UINT32_RAF_MAXREFERALS, "RAF.MaxReferals", 5, 0, 15);
-    setConfigMinMax(CONFIG_UINT32_RAF_MAXREFERERS, "RAF.MaxReferers", 5, 0, 15);
+    setConfigMinMax(CONFIG_UINT32_RAF_MAXREFERERS, "RAF.MaxReferers", 5, 0, 40);
     setConfig(CONFIG_FLOAT_RATE_RAF_XP, "Rate.RAF.XP", 3.0f);
     setConfig(CONFIG_FLOAT_RATE_RAF_LEVELPERLEVEL, "Rate.RAF.XP", 0.5f);
 

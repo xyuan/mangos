@@ -46,6 +46,16 @@ Channel::Channel(const std::string& name, uint32 channel_id)
     }
     else                                                    // it's custom channel
     {
+        // Disable announcements as default and add General Flag if is "Tavern" Channel
+        std::string converted;
+        converted.resize(name.size());
+        std::transform(name.begin(), name.end(), converted.begin(), ::tolower);
+
+        if (!converted.find("taberna"))
+        {
+            m_name = "Taberna"; // Rewrite name to make taberna always capitalized!
+            m_announce = false; // no join/leave announces
+        }
         m_flags |= CHANNEL_FLAG_CUSTOM;
     }
 }

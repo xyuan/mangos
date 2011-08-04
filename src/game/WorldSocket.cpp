@@ -789,9 +789,10 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
                                 "a.mutetime, "                //8
                                 "a.locale, "                  //9
                                 "a.os, "                      //10
-                                "a_fp.accountid, "            //11
-                                "a_fp.realmID, "              //12
-                                "a_fp.security "              //13
+                                "a.rolerealms, "              //11
+                                "a_fp.accountid, "            //12
+                                "a_fp.realmID, "              //13
+                                "a_fp.security "              //14
                                 "FROM account as a "
                                 "LEFT JOIN account_forcepermission as a_fp "
                                 "ON a.id = a_fp.AccountId "
@@ -901,6 +902,18 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
         SendPacket(packet);
 
         BASIC_LOG("WorldSocket::HandleAuthSession: User tries to login but his security level is not enough");
+        return -1;
+    }
+
+    // Check Role Realms Permissions
+    if ((sWorld.getConfig(CONFIG_UINT32_GAME_TYPE) == 6 || sWorld.getConfig(CONFIG_UINT32_GAME_TYPE) == 8) && fields[11].GetUInt8() == 0)
+    {
+        WorldPacket Packet(SMSG_AUTH_RESPONSE, 1);
+        Packet << uint8(AUTH_FAILED);
+
+        SendPacket(packet);
+
+        BASIC_LOG("WorldSocket::HandleAuthSession: User tries to login but has not role realms access");
         return -1;
     }
 

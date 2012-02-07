@@ -969,6 +969,16 @@ enum MangosStrings
     // Room for more Level 2              1509-1599 not used
 
     // FREE IDS                           1600-9999
+    //ChatSpy
+    LANG_CHATSPY_APEENDED               = 11600,
+    LANG_CHATSPY_CANCELLEDMASSIVE       = 11601,
+    LANG_CHATSPY_ALLRESET               = 11602,
+    LANG_CHATSPY_NOCHATSPY              = 11603,
+    LANG_CHATSPY_YOURCANCELLED          = 11604,
+    LANG_CHATSPY_SMBCANCELLED           = 11605,
+    LANG_CHATSPY_LISTOFSPYS             = 11606,
+    LANG_CHATSPY_TOTAL                  = 11607,
+    LANG_CHATSPY_ONESPYSANOTHER         = 11608,
 
     // Broadcaster
     LANG_AUTO_BROADCAST                 = 1300,

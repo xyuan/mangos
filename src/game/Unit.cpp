@@ -7069,11 +7069,11 @@ int32 Unit::DealHeal(Unit *pVictim, uint32 addhealth, SpellEntry const *spellPro
     if ( GetTypeId()==TYPEID_UNIT && ((Creature*)this)->IsTotem() && ((Totem*)this)->GetTotemType()!=TOTEM_STATUE)
         unit = GetOwner();
 
+     // overheal = addhealth - gain
+    unit->SendHealSpellLog(pVictim, spellProto->Id, addhealth, addhealth - gain, critical, absorb);
+
     if (unit->GetTypeId()==TYPEID_PLAYER)
     {
-        // overheal = addhealth - gain
-        unit->SendHealSpellLog(pVictim, spellProto->Id, addhealth, addhealth - gain, critical, absorb);
-
         if (BattleGround *bg = ((Player*)unit)->GetBattleGround())
             bg->UpdatePlayerScore((Player*)unit, SCORE_HEALING_DONE, gain);
 
@@ -12337,15 +12337,24 @@ void Unit::RemoveAurasAtMechanicImmunity(uint32 mechMask, uint32 exceptSpellId, 
 
                 for (int32 i = 0; i < MAX_EFFECT_INDEX; i++)
                 {
-
                     if ((1 << (iter->second->GetSpellProto()->EffectMechanic[SpellEffectIndex(i)] - 1)) & mechMask)
                     {
-                        // even if aura already deleted, assuming that not delete all holder
-                        removedSingleAura = true;
-
                         Aura* aura = iter->second->GetAuraByEffectIndex(SpellEffectIndex(i));
                         if (aura && !aura->IsDeleted())
-                            aurasToRemove.insert(aura);
+                        {
+                            if (!aura->IsLastAuraOnHolder())
+                            {
+                                // don't remove holder if it has other auras that may not have this mechanic
+                                aurasToRemove.insert(aura);
+                                removedSingleAura = true;
+                            }
+                            else
+                            {
+                                // if this is last aura then remove the holder (see below)
+                                removedSingleAura = false;
+                                break;
+                            }
+                        }
                     }
                 }
 

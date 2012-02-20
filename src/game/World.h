@@ -212,6 +212,8 @@ enum eConfigUInt32Values
     CONFIG_UINT32_VMSS_FREEZECHECKPERIOD,
     CONFIG_UINT32_VMSS_FREEZEDETECTTIME,
     CONFIG_UINT32_VMSS_FORCEUNLOADDELAY,
+    CONFIG_UINT32_VMSS_STATISTIC_THREADSCOUNT,
+    CONFIG_UINT32_VMSS_STATISTIC_INTERVAL,
     CONFIG_UINT32_VALUE_COUNT
 };
 
@@ -386,6 +388,7 @@ enum eConfigBoolValues
     CONFIG_BOOL_THREADS_DYNAMIC,
     CONFIG_BOOL_VMSS_ENABLE,
     CONFIG_BOOL_VMSS_TRYSKIPFIRST,
+    CONFIG_BOOL_VMSS_STATISTIC_ENABLE,
     CONFIG_BOOL_PLAYERBOT_ALLOW_SUMMON_OPPOSITE_FACTION,
     CONFIG_BOOL_PLAYERBOT_COLLECT_COMBAT,
     CONFIG_BOOL_PLAYERBOT_COLLECT_QUESTS,
@@ -649,6 +652,15 @@ class World
 
         // multithread locking (World locking used only if object map == NULL)
         ObjectLockType& GetLock(MapLockType _locktype = MAP_LOCK_TYPE_DEFAULT) { return i_lock[_locktype]; }
+
+        std::map<std::string,uint32> m_statsWorld;
+        void WorldStatAdd(std::string desq)
+        { 
+            m_statsWorld.insert(std::map<std::string,uint32>::value_type(desq,WorldTimer::getMSTimeDiff(m_previewTimer, WorldTimer::getMSTime()))); 
+            m_previewTimer = WorldTimer::getMSTime(); 
+        };
+        std::map<std::string,uint32>* GetWorldStat() { return &m_statsWorld; };
+        uint32 m_previewTimer;
 
         // reset duel system
         void setDuelResetEnableAreaIds(const char* areas);

@@ -458,6 +458,10 @@ void World::LoadConfigSettings(bool reload)
     setConfig(CONFIG_UINT32_VMSS_FREEZEDETECTTIME,    "VMSS.MapFreezeDetectTime",2000);
     setConfig(CONFIG_UINT32_VMSS_FORCEUNLOADDELAY,    "VMSS.ForceUnloadDelay",3000);
     setConfig(CONFIG_BOOL_VMSS_TRYSKIPFIRST,          "VMSS.TrySkipFirstThreadBreak", false);
+    // VMSS system statistic collector
+    setConfig(CONFIG_BOOL_VMSS_STATISTIC_ENABLE,        "VMSS.Statistic.Enable", false);
+    setConfig(CONFIG_UINT32_VMSS_STATISTIC_THREADSCOUNT,"VMSS.Statistic.Threads",1);
+    setConfig(CONFIG_UINT32_VMSS_STATISTIC_INTERVAL,    "VMSS.Statistic.Interval",60000);
 
     ///- Read all rates from the config file
     setConfigPos(CONFIG_FLOAT_RATE_HEALTH, "Rate.Health", 1.0f);
@@ -1632,6 +1636,7 @@ void World::DetectDBCLang()
 /// Update the World !
 void World::Update(uint32 diff)
 {
+    WorldStatAdd("Begin");
     ///- Update the different timers
     for(int i = 0; i < WUPDATE_COUNT; ++i)
     {
@@ -1646,6 +1651,7 @@ void World::Update(uint32 diff)
 
     ///-Update mass mailer tasks if any
     sMassMailMgr.Update();
+    WorldStatAdd("MassMailMgr");
 
     /// Handle daily quests reset time
     if (m_gameTime > m_NextDailyQuestReset)
@@ -1661,6 +1667,7 @@ void World::Update(uint32 diff)
 
     if (m_gameTime > m_NextRandomBGReset)
         ResetRandomBG();
+    WorldStatAdd("Quests+RandomBG");
 
     /// <ul><li> Handle auctions when the timer has passed
     if (m_timers[WUPDATE_AUCTIONS].Passed())
@@ -1678,6 +1685,7 @@ void World::Update(uint32 diff)
         ///- Handle expired auctions
         sAuctionMgr.Update();
     }
+    WorldStatAdd("AuctionMgr");
 
     /// <li> Handle AHBot operations
     if (m_timers[WUPDATE_AHBOT].Passed())
@@ -1685,9 +1693,11 @@ void World::Update(uint32 diff)
         sAuctionBot.Update();
         m_timers[WUPDATE_AHBOT].Reset();
     }
+    WorldStatAdd("AHBot");
 
     /// <li> Handle session updates
     UpdateSessions(diff);
+    WorldStatAdd("Sessions");
 
     /// <li> Handle weather updates when the timer has passed
     if (m_timers[WUPDATE_WEATHERS].Passed())
@@ -1718,11 +1728,18 @@ void World::Update(uint32 diff)
         LoginDatabase.PExecute("UPDATE uptime SET uptime = %u, maxplayers = %u WHERE realmid = %u AND starttime = " UI64FMTD, tmpDiff, maxClientsNum, realmID, uint64(m_startTime));
     }
 
+    WorldStatAdd("Uptime");
+
     /// <li> Handle all other objects
     ///- Update objects (maps, transport, creatures,...)
     sMapMgr.Update(diff);
+    m_statsWorld.clear();
+
+    WorldStatAdd("MapMgr");
     sBattleGroundMgr.Update(diff);
+    WorldStatAdd("BattleGroundMgr");
     sWorldPvPMgr.Update(diff);
+    WorldStatAdd("WorldPvPMgr");
 
     ///- Delete all characters which have been deleted X days before
     if (m_timers[WUPDATE_DELETECHARS].Passed())
@@ -1733,9 +1750,11 @@ void World::Update(uint32 diff)
 
     // Check if any group can be created by dungeon finder
     sLFGMgr.Update(diff);
+    WorldStatAdd("LFGMgr");
 
     // execute callbacks from sql queries that were queued recently
     UpdateResultQueue();
+    WorldStatAdd("UpdateResulttQueue");
 
     ///- Erase corpses once every 20 minutes
     if (m_timers[WUPDATE_CORPSES].Passed())
@@ -1767,15 +1786,19 @@ void World::Update(uint32 diff)
     /// </ul>
     ///- Move all creatures with "delayed move" and remove and delete all objects with "delayed remove"
     sMapMgr.RemoveAllObjectsInRemoveList();
+    WorldStatAdd("RemoveAllObjectsInRemoveList");
 
     // update the instance reset times
     sMapPersistentStateMgr.Update();
+    WorldStatAdd("MapPersistentStateMgr");
 
     // And last, but not least handle the issued cli commands
     ProcessCliCommands();
+    WorldStatAdd("CLI");
 
     //cleanup unused GridMap objects as well as VMaps
     sTerrainMgr.Update(diff);
+    WorldStatAdd("TerrainMgr");
 }
 
 /// Send a packet to all players (except self if mentioned)
